@@ -1,0 +1,54 @@
+Category:
+misc_net -> 1
+grocery_pos -> 2
+entertainment -> 3
+gas_transport -> 4
+misc_pos -> 5
+grocery_net -> 6
+shopping_net -> 7
+shopping_pos -> 8
+food_dining -> 9
+personal_care -> 10
+travel -> 11
+kids_pets -> 12
+home -> 13 
+health_fitness -> 14
+
+
+Gender:
+Female -> 1 
+Male -> 2
+
+
+Time:
+21-4 night -> 1
+
+5-12 morning -> 2
+
+13-17 afternoon -> 3
+
+
+
+AMT:
+0 - 100 -> low -> 1
+100 - 200 -> medium -> 2
+200+ -> high -> 3
+
+AGE:
+0-35 -> Young -> 1
+35-65 -> Middle -> 2
+65+ -> Old -> 3
+
+POPULATION:
+0-15000 -> 1
+15000-100000 -> 2 
+100000+ -> 3
+
+
+0 -> Low -> 1
+25000 -> Medium -> 2
+100000 -> High -> 3
+
+
+
+

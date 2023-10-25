@@ -1,0 +1,264 @@
+from kivy.uix.recycleview import RecycleView
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.recyclegridlayout import RecycleGridLayout
+from kivy.uix.screenmanager import ScreenManager
+from kivymd.uix.screenmanager import ScreenManager
+from kivymd.uix.textfield import MDTextFieldRect
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader as loader
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.button import MDFlatButton
+from dataset import FraudDetectDataSet
+import torch
+import pandas
+import psycopg2
+import gc
+import torch.nn as nn
+import numpy as np
+import torch.optim as optim
+
+
+file1=pandas.read_csv("data.csv")
+file1.replace('', np.nan, inplace=True)
+file1.dropna(inplace=True)
+file2=pandas.read_csv("fraudTest.csv")
+file2.replace('',np.nan,inplace=True)
+file2.dropna(inplace=True)
+final=file1.append(file2,ignore_index=True)
+test1=FraudDetectDataSet(final)
+train , test=train_test_split(test1,test_size=0.2,random_state=1)
+train_set=loader(train,batch_size=100,shuffle=True)
+test_set=loader(test,batch_size=100,shuffle=True)
+
+count1=0
+count2=0
+num=40
+con=psycopg2.connect(
+    database="data",
+    user="postgres",
+    password="adnan301003",
+    host="localhost",
+    port= '5432'     
+)
+
+class FraudDetectSet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1=nn.Linear(10,64)
+        self.fc2=nn.Linear(64,64)
+        self.fc3=nn.Linear(64,64)
+        self.fc4=nn.Linear(64,1)
+    def forward(self,x):
+        x=torch.relu(self.fc1(x))
+        x=torch.relu(self.fc2(x))
+        x=torch.relu(self.fc3(x))
+        x=torch.sigmoid(self.fc4(x))
+        return x
+
+
+class UI(BoxLayout):
+    def datainsert(self):
+        global count1
+        global num
+        lim=count1*num
+        self.ids.g1.width=2550
+        self.ids.g1.cols=13
+        if(count1==0):
+            c=pandas.read_excel("text.xlsx")
+            self.ids.r1.data=[{"text":str(x).upper(),"font_size":15,
+                "pos_hint":{"top":0},
+                "halign":'center',
+                "valign":'middle',
+                "size_hint":(None, None),
+                "width":200,
+                "height":50} for x in c.columns]
+        cursor_obj=con.cursor()
+        cursor_obj.execute("select * from public.data Limit %s offset %s", (str(num),str(lim)))
+        result1=cursor_obj.fetchall()
+        cursor_obj.close()
+        self.ids.r1.data=self.ids.r1.data+[{"text":str(x),"font_size":15,
+            "pos_hint":{"top":0},
+            "halign":'center',
+            "valign":'middle',
+            "size_hint":(None, None),   
+            "width":200,
+            "height":50} for y in result1 for x in y]
+        count1=count1+1
+    def helper(self):
+        pass
+    def prepinsert(self):
+        global count2
+        global num
+        lim=count2*num
+        self.ids.g2.cols=11
+        self.ids.g2.width=2200
+        if(count2==0):
+            c=pandas.read_csv("data.csv")
+            self.ids.r2.data=[{"text":str(x).upper(),"font_size":15,
+                "pos_hint":{"top":0},
+                "halign":'center',
+                "valign":'middle',
+                "size_hint":(None, None),
+                "width":200,
+                "height":50} for x in c.columns]
+        cursor_obj=con.cursor()
+        cursor_obj.execute("select * from public.prepared Limit %s offset %s", (str(num),str(lim)))
+        result2=cursor_obj.fetchall()
+        cursor_obj.close()
+        self.ids.r2.data=self.ids.r2.data+[{"text":str(x),"font_size":15,
+            "pos_hint":{"top":0},
+            "halign":'center',
+            "valign":'middle',
+            "size_hint":(None, None),   
+            "width":200,
+            "height":50} for y in result2 for x in y]
+        count2=count2+1
+    def clear(self):
+        self.ids.g1.clear_widgets()
+        self.ids.g2.clear_widgets()
+        self.ids.p1.text=""
+        self.ids.p2.text=""
+        self.ids.p3.text=""
+        self.ids.p4.text=""
+        self.ids.p5.text=""
+        self.ids.p6.text=""
+        self.ids.p7.text=""
+        self.ids.p8.text=""
+        self.ids.p9.text=""
+        self.ids.p10.text=""
+        global count1
+        global count2
+        count1=0
+        count2=0
+        gc.collect()
+    def predict(self):
+        category=int(self.ids.p1.text)
+        amt=int(self.ids.p2.text)
+        gender=int(self.ids.p3.text)
+        lat=int(self.ids.p4.text)
+        long=int(self.ids.p5.text)
+        pop=int(self.ids.p6.text)
+        age=int(self.ids.p7.text)
+        time=int(self.ids.p8.text)
+        merch_lat=int(self.ids.p9.text)
+        merch_long=int(self.ids.p10.text)
+
+        net=FraudDetectSet()
+        net.load_state_dict(torch.load("C:/Adnan BMS/College/Code/Intern/Final/final.pt"))
+
+        net.eval()
+        df1=[[category,amt,gender,lat,long,pop,age,time,merch_lat,merch_long]]
+        x=final.iloc[:,0:10].values
+        sc=StandardScaler()
+        scaler=sc.fit(x)
+        df=scaler.transform(df1)
+        t=torch.tensor(df,dtype=torch.float32)
+        with torch.no_grad():
+            output=net(t)
+            y=output
+            print(y.round())
+            print(y)
+            result=y.round()
+            result=result.item()
+        if result==1.0:
+            text1="Fraud"
+        else:
+            text1="Not Fraud"
+        Button=MDFlatButton(text="Close",on_press=self.close)
+        self.dialog=MDDialog(title="Output",text=text1,buttons=[Button])
+        self.dialog.open()
+    def close(self,obj):
+        self.dialog.dismiss()
+    def help(self):
+        text1="""
+        Category:
+            misc_net -> 1
+            grocery_pos -> 2
+            entertainment -> 3
+            gas_transport -> 4
+            misc_pos -> 5
+            grocery_net -> 6
+            shopping_net -> 7
+            shopping_pos -> 8
+            food_dining -> 9
+            personal_care -> 10
+            travel -> 11
+            kids_pets -> 12
+            home -> 13 
+            health_fitness -> 14
+
+
+        Gender:
+            Female -> 1 
+            Male -> 2
+
+
+        Time:
+            21-4 night -> 1
+            5-12 morning -> 2
+            13-17 afternoon -> 3
+
+
+        AMT:
+            0 - 100 -> low -> 1
+            100 - 200 -> medium -> 2
+            200+ -> high -> 3
+
+
+        AGE:
+            0-35 -> Young -> 1
+            35-65 -> Middle -> 2
+            65+ -> Old -> 3
+            
+            
+        POPULATION:
+            0-15000 -> 1
+            15000-100000 -> 2 
+            100000+ -> 3
+        """
+        Button=MDFlatButton(text="Close",on_press=self.close)
+        self.dialog=MDDialog(title="Help",text=text1,buttons=[Button])
+        self.dialog.open()
+    def train(self):
+        net=FraudDetectSet()
+        lossfn=nn.BCELoss()   
+        optimizer=optim.Adam(net.parameters(),lr=0.001)
+        for epoch in range(100):
+            net.train()
+            for data in train_set:
+                #getting the respective batches
+                X,y=data
+                
+                #forward pass
+                pred=net(X) #predicting the output
+                loss=lossfn(pred,y) #calculating the loss which is the difference between the predicted output and the actual output 
+
+                #backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                
+                #update the model
+                optimizer.step()
+            if epoch%100 ==0 :
+                correct=0
+                total=0
+                net.eval()
+                with torch.no_grad():
+                        for data in test_set:
+                            X,y=data
+                            pred=net(X)
+                            for ids,i in enumerate(pred):
+                                if(y[ids]==i.round()):
+                                    correct+=1
+                                total+=1
+                acc=str((correct/total)*100)
+                ep=str(epoch+100)
+                self.ids.training.font_size=20
+                self.ids.training.text="Epoch: "+ep+ " Accuracy: "+acc
+            
+
+            
+                

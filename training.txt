@@ -1,0 +1,136 @@
+
+#Preparing the dataset ie; scaling and loading
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import torch
+from dataset import FraudDetectDataSet
+from torch.utils.data import DataLoader as loader
+from sklearn.model_selection import train_test_split
+
+file1=pd.read_csv("data.csv")
+file1.replace('', np.nan, inplace=True)
+file1.dropna(inplace=True)
+file2=pd.read_csv("fraudTest.csv")
+file2.replace('',np.nan,inplace=True)
+file2.dropna(inplace=True)
+final=file1.append(file2,ignore_index=True)
+# file3=pd.read_csv("testing.csv")
+# file3.dropna(inplace=True)
+# file4=pd.read_csv("input.csv")
+
+test1=FraudDetectDataSet(final)
+train , test=train_test_split(test1,test_size=0.2,random_state=1)
+
+
+testing=loader(test1,batch_size=50,shuffle=True)
+# train_data_set=FraudDetectDataSet(train)
+# input=FraudDetectDataSet(file4)
+# test_data_set=FraudDetectDataSet(test)   
+
+# testing=loader(test1,batch_size=50,shuffle=True)
+train_set=loader(train,batch_size=100,shuffle=True)
+test_set=loader(test,batch_size=100,shuffle=True)
+# input=loader(input,batch_size=1,shuffle=True)
+
+#Building the Model
+import torch.nn as nn
+import torch.optim as optim
+
+class FraudDetectSet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1=nn.Linear(10,64)
+        self.fc2=nn.Linear(64,64)
+        self.fc3=nn.Linear(64,64)
+        self.fc4=nn.Linear(64,1)
+    def forward(self,x):
+        x=torch.relu(self.fc1(x))
+        x=torch.relu(self.fc2(x))
+        x=torch.relu(self.fc3(x))
+        x=torch.sigmoid(self.fc4(x))
+        return x
+
+net=FraudDetectSet()
+
+# net=torch.load("C:/Adnan BMS/College/Code/Intern/DAY 12/net.pt")
+lossfn=nn.BCELoss()   
+
+optimizer=optim.Adam(net.parameters(),lr=0.001)
+
+EPOCHS=100
+
+for epoch in range(EPOCHS):
+    net.train()
+    print(epoch)
+    for data in train_set:
+        #getting the respective batches
+        X,y=data
+        
+        #forward pass
+        pred=net(X) #predicting the output
+        loss=lossfn(pred,y) #calculating the loss which is the difference between the predicted output and the actual output 
+
+        #backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        
+        #update the model
+        optimizer.step()
+    if epoch%100 ==0 :
+        correct=0
+        total=0
+        net.eval()
+        with torch.no_grad():
+                for data in test_set:
+                    X,y=data
+                    pred=net(X)
+                    for ids,i in enumerate(pred):
+                        if(y[ids]==i.round()):
+                            correct+=1
+                        total+=1
+        print("Accuracy: ",(correct/total)*100)
+    
+
+
+        
+correct=0
+total=0
+net.eval()
+with torch.no_grad():
+    for data in train_set:
+        X,y=data
+        pred=net(X)
+        for ids,i in enumerate(pred):
+            if(y[ids]==i.round()):
+                correct+=1
+            total+=1
+
+    
+print("Accuracy: ",(correct/total)*100)
+print(correct)
+print(total)
+
+# torch.save(net,"C:/Adnan BMS/College/Code/Intern/DAY 12/final.pt")
+
+# torch.save(net.state_dict(), "C:/Adnan BMS/College/Code/Intern/Final/final.pt")
+
+# net=FraudDetectSet()
+# net.load_state_dict(torch.load("C:/Adnan BMS/College/Code/Intern/Final/final.pt"))
+
+
+net.eval()
+df1=[[2,3,1,29,-98,3,2,1,30,-99]]
+x=final.iloc[:,0:10].values
+sc=StandardScaler()
+scaler=sc.fit(x)
+df=scaler.transform(df1)
+t=torch.tensor(df,dtype=torch.float32)
+print(t)
+
+
+with torch.no_grad():
+    output=net(t)
+    y=output
+    print(y.round())
+    print(y)

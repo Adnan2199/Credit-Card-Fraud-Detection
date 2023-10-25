@@ -1,0 +1,396 @@
+#:import ScrollEffect  kivy.effects.scroll.ScrollEffect
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import utils kivy.utils
+#:import Factory kivy.factory.Factory
+UI:
+<UI>:
+    orientation:"vertical"
+    Label:
+        text:"Fraud Detection"
+        size_hint:1,0.2
+        pos_hint:{"center_x":0.5,"center_y":0.5}
+        color:0,0,0,1
+        font_size:20
+        canvas.before:
+            Color:
+                rgb:utils.get_color_from_hex("#AEE2FF")
+            Rectangle:
+                pos:self.pos
+                size:self.size
+    ScreenManager:
+        id:manager
+        transition: NoTransition()
+        Screen:
+            name:"data"
+            BoxLayout:
+                orientation:"horizontal"
+                BoxLayout:
+                    size_hint:0.25,1
+                    orientation:"vertical"
+                    Button:
+                        text:"Load Data"
+                        on_press:root.datainsert()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Prepare Data"
+                        on_press:
+                            root.clear()
+                            root.prepinsert()
+                            manager.current='prepare'
+                            manager.transition.direction="up"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Train"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='train'
+                            manager.transition.direction="up"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Predict"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='Predict'
+                            manager.transition.direction="up"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Clear"
+                        on_press:root.clear()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                RecycleView:
+                    id:r1
+                    viewclass:"Label"
+                    scroll_y:1
+                    size:self.size
+                    on_scroll_start:root.datainsert() if root.ids.r1.scroll_y<=0 else root.helper()
+                    RecycleGridLayout:
+                        id:g1
+                        padding:"35dp","10dp","25dp","10dp"
+                        size_hint:None,None
+                        height:self.minimum_height
+        Screen:
+            name:"prepare"
+            BoxLayout:
+                orientation:"horizontal"
+                BoxLayout:
+                    size_hint:0.25,1
+                    orientation:"vertical"
+                    Button:
+                        text:"Load Data"
+                        on_press:
+                            root.clear()
+                            root.datainsert()
+                            manager.current='data'
+                            manager.transition.direction="down"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Prepare Data"
+                        on_press:root.prepinsert()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Train"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='train'
+                            manager.transition.direction="up"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Predict"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='Predict'
+                            manager.transition.direction="up"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Clear"
+                        on_press:root.clear()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                RecycleView:
+                    id:r2
+                    viewclass:"Label"
+                    scroll_y:1
+                    size:self.size
+                    on_scroll_start:root.prepinsert() if root.ids.r2.scroll_y<=0 else root.helper()
+                    RecycleGridLayout:
+                        id:g2
+                        padding:"35dp","10dp","25dp","10dp"
+                        size_hint:None,None
+                        height:self.minimum_height
+        Screen:
+            name:"train"
+            BoxLayout:
+                orientation:"horizontal"
+                BoxLayout:
+                    size_hint:0.25,1
+                    orientation:"vertical"
+                    Button:
+                        text:"Load Data"
+                        on_press:
+                            root.clear()
+                            root.datainsert()
+                            manager.current='data'
+                            manager.transition.direction="down"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Prepare Data"
+                        on_press:
+                            root.clear()
+                            root.prepinsert()
+                            manager.current='prepare'
+                            manager.transition.direction="down"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Train"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:root.train()
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Predict"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='Predict'
+                            manager.transition.direction="up"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Clear"
+                        on_press:root.clear()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                BoxLayout:
+                    Label:
+                        id:training
+                        text:"Training"
+                        font_size:50
+                        pos_hint:{"center_x":0.5,"center_y":0.5}
+        Screen:
+            name:"Predict"
+            BoxLayout:
+                orientation:"horizontal"
+                BoxLayout:
+                    size_hint:0.25,1
+                    orientation:"vertical"
+                    Button:
+                        text:"Load Data"
+                        on_press:
+                            root.clear()
+                            root.datainsert()
+                            manager.current='data'
+                            manager.transition.direction="down"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Prepare Data"
+                        on_press:
+                            root.clear()
+                            root.prepinsert()
+                            manager.current='prepare'
+                            manager.transition.direction="down"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Train"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        on_press:
+                            root.clear()
+                            manager.current='train'
+                            manager.transition.direction="down"
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Predict"
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                    Button:
+                        text:"Clear"
+                        on_press:root.clear()
+                        background_color: utils.get_color_from_hex("#AEE2FF")
+                        canvas.before:
+                            Color:
+                                rgb:utils.get_color_from_hex("#AEE2FF")
+                            Rectangle:
+                                pos:self.pos
+                                size:self.size
+                Screen:
+                    MDCard:
+                        size_hint:0.95,0.95
+                        pos_hint:{"center_x":0.5,"center_y":0.5}
+                        padding: 20
+                        orientation:"vertical"
+                        color:"white"
+                        spacing:20
+                        
+                        MDLabel:
+                            text:"Enter the Values for the Following:"
+                            pos:0,120
+                            font_size:30
+                            halign:'center'
+                            
+
+                        GridLayout:
+                            cols:5
+                            spacing:20 ,50
+                            MDTextField:
+                                id:p1
+                                hint_text:"Enter Category"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p2
+                                hint_text:"Enter Amount"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p3
+                                hint_text:"Enter Gender"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p4
+                                hint_text:"Enter Latitude"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p5
+                                hint_text:"Enter Longitude"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p6
+                                hint_text:"Enter Population"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p7
+                                hint_text:"Enter AgeGroup"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p8
+                                hint_text:"Enter Time"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p9
+                                hint_text:"Enter Merch_Latitude"
+                                mode: "rectangle"
+                            MDTextField:
+                                id:p10
+                                hint_text:"Enter Merch_Longitude"
+                                mode: "rectangle"
+                        MDRaisedButton:
+                            text:"Enter"
+                            pos_hint:{"center_x":0.5,"top":0.5}
+                            font_size:12
+                            size_hint:0.2,0.2
+                            on_press:
+                                root.predict()
+                        MDRaisedButton:
+                            text:"Help"
+                            pos_hint:{"center_x":0.5,"center_y":0.5}
+                            font_size:12
+                            size_hint:0.2,0.2
+                            on_press:
+                                root.help()
+                        
+                        Widget:
+                            size_hint_y:None
+                            height:150

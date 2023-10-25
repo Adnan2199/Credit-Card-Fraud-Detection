@@ -1,0 +1,17 @@
+from kivy.app import App
+from kivy.utils import get_color_from_hex
+import psycopg2
+from kivy.effects.opacityscroll import OpacityScrollEffect
+from kivy.effects.scroll import ScrollEffect
+import pandas
+import UI
+from kivymd.app import MDApp
+from kivy.uix.popup import Popup
+from kivymd.uix.card import MDCard
+
+class Mainuiapp(MDApp):
+    def build(self):
+        self.theme_cls.theme_style="Dark"
+        self.theme_cls.primary_palette="BlueGray"
+
+Mainuiapp().run()

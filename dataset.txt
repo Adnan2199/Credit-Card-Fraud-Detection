@@ -1,0 +1,23 @@
+import pandas as pd
+import torch
+import numpy as np
+from torch.utils.data import Dataset
+from sklearn.preprocessing import StandardScaler
+from torch.utils.data import dataloader
+class FraudDetectDataSet(Dataset):
+    def __init__(self,file):
+        x=file.iloc[:,0:10].values
+        y=file.iloc[:,10].values
+        sc=StandardScaler()
+        x_train=sc.fit_transform(x)
+        y_train=y
+        self.X=torch.tensor(x_train,dtype=torch.float32)
+        self.Y=torch.tensor(y_train,dtype=torch.float32).reshape(-1,1)
+    def __len__(self):
+        return len(self.Y)
+    def __getitem__(self,idx):
+        return self.X[idx],self.Y[idx]
+        
+
+
+
